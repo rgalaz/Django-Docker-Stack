@@ -1,0 +1,47 @@
+version: '2'
+
+services: 
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/usr/src/app/
+      - ./nginx_files:/etc/nginx/conf.d
+      - ./static:/usr/share/nginx/html
+    depends_on:
+      - web
+  web:
+    build: .
+    container_name: django
+    depends_on:
+      - db
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/mediafiles
+    expose:
+      - "8000"
+    environment:
+      - SQL_DATABASE=inventory
+      - SQL_USER=rgalaz
+      - SQL_PASSWORD=rgalaz2019
+      - SQL_HOST=db
+      - SQL_PORT=5432
+      - DATABASE=postgres
+  db:
+    container_name: postgres
+    ports:
+      - 5432:5432
+    image: postgres:latest  
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=rgalaz
+      - POSTGRES_PASSWORD=rgalaz2019
+      - POSTGRES_DB=inventory
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
